@@ -36,7 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   flame: ^1.32.0
   flame_audio: ^2.11.10
-  soundpool: ^2.4.1
 
 dev_dependencies:
   flutter_test:
