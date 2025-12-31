@@ -8,6 +8,7 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:space_shooter_game/components/asteroid.dart';
 import 'package:flutter/material.dart';
+import 'package:space_shooter_game/components/pickup.dart';
 import 'package:space_shooter_game/components/player.dart';
 import 'package:space_shooter_game/components/shoot_button.dart';
 
@@ -15,6 +16,7 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
   late Player player;
   late JoystickComponent joystick;
   late SpawnComponent _asteriodSpawner;
+  late SpawnComponent _pickupSpawner;
   final Random _random = Random();
   late ShootButton _shootButton;
   int _score = 0;
@@ -33,6 +35,7 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
     await _createPlayer();
     _createShootButton();
     _createAsteriodSpawner();
+    _createPickupSpawner();
     _createScoreDisplay();
   }
 
@@ -71,6 +74,17 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
     );
 
     add(_asteriodSpawner);
+  }
+
+  void _createPickupSpawner() {
+    _pickupSpawner = SpawnComponent.periodRange(
+      factory: (index) => Pickup(position: _generateSpawnPosition(), pickupType: PickupType.values[PickupType.values.length]),
+      minPeriod: 0.7,
+      maxPeriod: 1.2,
+      selfPositioning: true,
+    );
+
+    add(_pickupSpawner);
   }
 
   Vector2 _generateSpawnPosition() {

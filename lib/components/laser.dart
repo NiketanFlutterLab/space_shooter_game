@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -6,7 +7,7 @@ import 'package:space_shooter_game/components/asteroid.dart';
 import 'package:space_shooter_game/my_game.dart';
 
 class Laser extends SpriteComponent with HasGameReference<MyGame>, CollisionCallbacks {
-  Laser({required super.position}) : super(anchor: Anchor.center, priority: -1);
+  Laser({required super.position, super.angle = 0.0}) : super(anchor: Anchor.center, priority: -1);
 
   @override
   FutureOr<void> onLoad() async {
@@ -18,7 +19,7 @@ class Laser extends SpriteComponent with HasGameReference<MyGame>, CollisionCall
 
   @override
   void update(double dt) {
-    position.y -= 500 * dt;
+    position += Vector2(sin(angle), -cos(angle) * 500 * dt);
 
     if (position.y < -size.y / 2) {
       removeFromParent();
