@@ -8,6 +8,7 @@ import 'package:space_shooter_game/components/asteroid.dart';
 import 'package:space_shooter_game/components/explosion.dart';
 
 import 'package:space_shooter_game/components/laser.dart';
+import 'package:space_shooter_game/components/pickup.dart';
 import 'package:space_shooter_game/my_game.dart';
 import 'package:flutter/services.dart';
 
@@ -19,9 +20,11 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
   bool _isDestroyed = false;
   final Random _random = Random();
   late Timer _explosionTimer;
+  late Timer _laserPowerupTimer;
 
   Player() {
     _explosionTimer = Timer(0.1, onTick: _createRandomExplosion, repeat: true, autoStart: false);
+    _laserPowerupTimer = Timer(10.0, autoStart: false);
   }
   @override
   FutureOr<void> onLoad() async {
@@ -38,6 +41,10 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
       _explosionTimer.update(dt);
       return;
     }
+    if (_laserPowerupTimer.isRunning()) {
+      _laserPowerupTimer.update(dt);
+    }
+
     final Vector2 movement = game.joystick.relativeDelta + _keyboardMovement;
     position += movement.normalized() * 200 * dt;
     _handleScreenBounds();
@@ -78,6 +85,11 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
 
   void _fireLaser() {
     game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2)));
+
+    if (_laserPowerupTimer.isRunning()) {
+      game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2), angle: 15 * degrees2Radians));
+      game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2), angle: -15 * degrees2Radians));
+    }
   }
 
   void _handleDestruction() async {
@@ -111,6 +123,20 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
     if (_isDestroyed) return;
     if (other is Asteroid) {
       _handleDestruction();
+    } else if (other is Pickup) {
+      other.removeFromParent();
+      game.incrementScore(1);
+      switch (other.pickupType) {
+        case PickupType.laser:
+          _laserPowerupTimer.start();
+          break;
+        case PickupType.bomb:
+          // Handle bomb pickup
+          break;
+        case PickupType.shield:
+          // Handle shield pickup
+          break;
+      }
     }
   }
 
